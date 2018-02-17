@@ -25,6 +25,8 @@ class DBHandler:
         connection.autocommit = True
         cursor = connection.cursor()
 
+        # queries the postgres catalog to see if 'dbpedia' exists
+        # if not, creates it
         cursor.execute("SELECT COUNT(*) = 0 FROM pg_catalog.pg_database WHERE datname = 'dbpedia'")
         not_exists_row = cursor.fetchone()
         not_exists = not_exists_row[0]
@@ -34,10 +36,8 @@ class DBHandler:
 
         connection.close()
 
-        connection = psycopg2.connect("dbname='dbpedia' user='%s' host='localhost' password='%s'"
+        self.connection = psycopg2.connect("dbname='dbpedia' user='%s' host='localhost' password='%s'"
                                       % (user_name, password))
-
-        self.connection = connection
 
     def __del__(self):
 
@@ -46,6 +46,21 @@ class DBHandler:
     def commit(self):
 
         self.connection.commit()
+
+    def schema_exists(self):
+
+        """
+        
+        Checks the estimated number of tuples in the subjects table to determine if data exists
+        
+        :return: 
+        """
+
+        with self.connection.cursor() as cursor:
+
+            cursor.execute('select reltuples FROM pg_class where relname = %s', ('subjects',))
+            result = cursor.fetchone()[0]
+            return result > 0
 
     def build_table_schema(self, schema_name, schema_file_path):
 
@@ -102,3 +117,50 @@ class DBHandler:
 
             cursor.execute('INSERT INTO dbpedia.predicate_object (subject_id, predicate, object) '
                            'VALUES (%s, %s, %s)', (id, predicate, db_object))
+
+    def get_person_metadata(self, person_name, use_exact_match=False):
+
+        """
+        
+        Returns all metadata associated with the provided person_name. However, does not actually check
+        to see if the identifier corresponds to a person or not; the class of the identifier will
+        be included in the returned metadata though. DBPedia People only contains people predicate
+        types as well.
+        
+        :param person_name: 
+        :return: 
+        """
+
+        # wikipedia replaces all spaces with under scores
+        # upper case to make case sensitive
+        person_name = person_name.replace(' ', '_').upper()
+
+        with self.connection.cursor() as cursor:
+
+            # get id associated with this person
+            # get all similar IDs
+
+            if not use_exact_match:
+                cursor.execute('SELECT subject_id, name FROM dbpedia.subjects WHERE upper(dbpedia.name) LIKE %s',
+                               (person_name,))
+            else:
+                cursor.execute('SELECT subject_id, name FROM dbpedia.subjects WHERE upper(dbpedia.name) = %s',
+                               (person_name,))
+
+            results = cursor.fetchall()
+
+            # no person matches the input name
+            # return empty list
+            if results is None:
+                return []
+
+            subject_id_list = [x[0] for x in results]
+
+            # get all metadata associated with the subject_ids
+            cursor.execute('select dbpedia.subjects.name, predicate, object '
+                           'FROM dbpedia.predicate_object '
+                           'INNER JOIN dbpedia.subjects on (dbpedia.subjects.subject_id = dbpedia.predicate_object.subject_id) '
+                           'WHERE dbpedia.predicate_object.subject_id = ANY(%s)')
+
+            # this should never be none
+            return cursor.fetchall()

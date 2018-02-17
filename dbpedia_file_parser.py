@@ -47,14 +47,29 @@ def plain_subject_predicate(line):
         return line.split('/')[-1]
 
 
-if __name__ == '__main__':
+def construct_sql_db(schema, schema_path, db_tql_file_path, overwrite_db=False):
+
+    """
+    
+    Handles the initial construction of the local DBpedia SQL database. Throws an assertion
+    error if you attempt to destroy and replace the DB without setting overwrite_db to True.
+    
+    This method takes quite a bit of time (~hours) to complete.
+    
+    :param schema_path:
+    :param db_tql_file_path: 
+    :param overwrite_db:
+    :return: 
+    """
 
     db_handler = DBHandler()
 
-    db_handler.build_table_schema('dbpedia', os.path.join(os.getcwd(), 'sql', 'dbpedia_schema.sql'))
+    if not overwrite_db and db_handler.schema_exists():
+        raise AssertionError('Set overwrite_db flag to True to overwrite an existing DB instance.')
 
-    generator = build_tql_file_generator(os.path.join(os.getcwd(), 'dbpedia', 'persondata_en.tql'))
-    g = rdflib.graph.ConjunctiveGraph()
+    db_handler.build_table_schema(schema, schema_path)
+    generator = build_tql_file_generator(db_tql_file_path)
+
     counter = 0
 
     for line in generator:
@@ -76,3 +91,16 @@ if __name__ == '__main__':
         counter += 1
 
     db_handler.commit()
+
+    return None
+
+if __name__ == '__main__':
+
+    db_handler = DBHandler()
+
+    # db_handler.build_table_schema('dbpedia', os.path.join(os.getcwd(), 'sql', 'dbpedia_schema.sql'))
+
+    generator = build_tql_file_generator(os.path.join(os.getcwd(), 'dbpedia', 'persondata_en.tql'))
+
+    print db_handler.schema_exists()
+
