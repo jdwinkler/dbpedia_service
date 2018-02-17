@@ -12,6 +12,8 @@ class DBHandler:
 
     def __init__(self):
 
+        # todo pass in DB credentials for local postgres install
+
         # ordinarily you would get these from some secret store
         # e.g. heroku as a specific url that you parse to get both
         # or os.environ storage (like those used for API keys and the like)
@@ -82,6 +84,21 @@ class DBHandler:
             schema_file = open(schema_file_path, 'rU').read()
             cursor.execute(schema_file)
 
+    def build_indices(self):
+
+        """
+        
+        Builds the following indices:
+        
+        Index on name for subjects
+        Index on predicate for predicate_object
+        Index on subject_id for predicate object
+        
+        :return: 
+        """
+
+        return None
+
     def insert_spo_tuple(self, spo_tuple):
 
         """
@@ -127,7 +144,13 @@ class DBHandler:
         be included in the returned metadata though. DBPedia People only contains people predicate
         types as well.
         
+        Use_exact_match toggles between two behaviors: if True, then uses the exact identifier provided
+        to query against the subject table (WHERE = identifier). If False, uses the LIKE operator
+        to attempt to find similar IDs that are not exactly the same. Results will be still be a superset
+        of the use_exact_match = True case.
+        
         :param person_name: 
+        :param use_exact_match:
         :return: 
         """
 
@@ -141,10 +164,11 @@ class DBHandler:
             # get all similar IDs
 
             if not use_exact_match:
-                cursor.execute('SELECT subject_id, name FROM dbpedia.subjects WHERE upper(dbpedia.name) LIKE %s',
-                               (person_name,))
+                cursor.execute('SELECT subject_id, name FROM dbpedia.subjects WHERE upper(name) '
+                               'LIKE %s',
+                               ('%%' + person_name + '%%',))
             else:
-                cursor.execute('SELECT subject_id, name FROM dbpedia.subjects WHERE upper(dbpedia.name) = %s',
+                cursor.execute('SELECT subject_id, name FROM dbpedia.subjects WHERE upper(name) = %s',
                                (person_name,))
 
             results = cursor.fetchall()
@@ -160,7 +184,12 @@ class DBHandler:
             cursor.execute('select dbpedia.subjects.name, predicate, object '
                            'FROM dbpedia.predicate_object '
                            'INNER JOIN dbpedia.subjects on (dbpedia.subjects.subject_id = dbpedia.predicate_object.subject_id) '
-                           'WHERE dbpedia.predicate_object.subject_id = ANY(%s)')
+                           'WHERE dbpedia.predicate_object.subject_id = ANY(%s)', (subject_id_list,))
 
             # this should never be none
-            return cursor.fetchall()
+            # Sort results by name and return
+            return sorted(cursor.fetchall(), key=lambda x: x[0])
+
+    def get_tuples_by_predicate(self, predicate_of_interest):
+
+        return None

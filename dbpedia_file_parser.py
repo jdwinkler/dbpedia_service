@@ -90,6 +90,8 @@ def construct_sql_db(schema, schema_path, db_tql_file_path, overwrite_db=False):
 
         counter += 1
 
+    db_handler.build_indices()
+
     db_handler.commit()
 
     return None
@@ -100,7 +102,10 @@ if __name__ == '__main__':
 
     # db_handler.build_table_schema('dbpedia', os.path.join(os.getcwd(), 'sql', 'dbpedia_schema.sql'))
 
-    generator = build_tql_file_generator(os.path.join(os.getcwd(), 'dbpedia', 'persondata_en.tql'))
+    # generator = build_tql_file_generator(os.path.join(os.getcwd(), 'dbpedia', 'persondata_en.tql'))
 
-    print db_handler.schema_exists()
+    results = db_handler.get_person_metadata('Buddy', use_exact_match=False)
+
+    for result in results:
+        print result
 
