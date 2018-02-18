@@ -12,8 +12,6 @@ class DBHandler:
 
     def __init__(self, postgres_username=None, postgres_password=None):
 
-        # todo pass in DB credentials for local postgres install
-
         # ordinarily you would get these from some secret store
         # e.g. heroku as a specific url that you parse to get both
         # or os.environ storage (like those used for API keys and the like)

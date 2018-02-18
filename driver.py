@@ -1,21 +1,35 @@
 import os
 import sys
 from database_query_handler import DBHandler
+import dbpedia_file_parser
 from collections import defaultdict
 import time
-import nltk
 
 
-def construct_database(pg_username, pg_password):
+def construct_database(postgres_username, postgres_password):
+
+    """
+    
+    Attempts to reconstruct the local dbpedia using Postgres.
+    
+    :param postgres_username: 
+    :param postgres_password: 
+    :return: 
+    """
+
+    current_location = os.path.realpath(__file__)
+    path = os.path.split(current_location)[0]
+
+    print 'Working on building a local DBpedia database...'
 
     try:
-        db_handler = DBHandler(postgres_username=pg_username,
-                               postgres_password=pg_password)
-    except:
-        raise
-
-    return None
-
+        dbpedia_file_parser.driver(path,
+                                   postgres_username,
+                                   postgres_password)
+    except Exception as e:
+        print e.message
+        print 'This may be caused be insufficient access rights for the ' \
+              'local postgres user account used to create the DB, or a missing postgres installation.'
 
 def example_queries():
 
@@ -72,14 +86,14 @@ def example_queries():
         if earliest_birthday_tuple is None:
             earliest_birthday_tuple = (s, date_object)
         else:
-            # comparison operators are overriden here
+            # comparison operators are overridden here
             if date_object < earliest_birthday_tuple[1]:
                 earliest_birthday_tuple = (s, date_object)
 
     print '\nEarliest birth date in DBpedia belongs to:\n%s at %s-%s-%s (Y/M/D)' % (earliest_birthday_tuple[0],
-                                                                                  earliest_birthday_tuple[1][0],
-                                                                                  earliest_birthday_tuple[1][1],
-                                                                                  earliest_birthday_tuple[1][2])
+                                                                                    earliest_birthday_tuple[1][0],
+                                                                                    earliest_birthday_tuple[1][1],
+                                                                                    earliest_birthday_tuple[1][2])
 
     # five most common words in db used to describe people
     # note that this includes common stop words and conjunctions
@@ -92,7 +106,7 @@ def example_queries():
         for t in tokens:
             counter[t] += 1
 
-    sorted_description_tokens = sorted([(x, y) for x,y in counter.iteritems()],
+    sorted_description_tokens = sorted([(x, y) for x, y in counter.iteritems()],
                                        key=lambda val: val[1],
                                        reverse=True)
 
@@ -103,7 +117,7 @@ def example_queries():
 
 if __name__ == '__main__':
 
-    if len(sys.argv) <= 1:
+    if len(sys.argv) == 2 and sys.argv[1] == 'example':
         # assume DB has been constructed, run example data analysis
         example_queries()
     elif len(sys.argv) == 3:
@@ -111,5 +125,10 @@ if __name__ == '__main__':
         pg_username = sys.argv[1]
         pg_password = sys.argv[2]
         construct_database(pg_username, pg_password)
+    elif len(sys.argv) == 1:
+        print "Usage: 'python driver.py example' generates an example of output data"
+        print "'python driver.py USER_NAME PASSWORD' (re)builds a local DBpedia database " \
+              "using the local postgres install"
+        print "'python driver.py' displays this message."
     else:
         print('Unknown number of arguments.')
