@@ -6,7 +6,7 @@ Tool for storing, accessing, and querying the DBPedia People database. Provides 
 
 Clone the repository and make sure the following packages are installed:
 
-Psycopg2 (2.7)
+Psycopg2 (2.7)<br>
 RDFlib (4.2.2)
 
 The CLI is as follows:
@@ -19,27 +19,27 @@ Note that the initial database construction is quite slow, but not memory intens
 
 python driver.py example will automatically generate the following example data output:
 
-Example of querying data on one person: Tokuko Takagi
-Tokuko_Takagi, birthPlace: Tokyo
-Tokuko_Takagi, description: Japanese actor and dancer
-Tokuko_Takagi, birthDate: 1891-01-01
-Tokuko_Takagi, name: Tokuko Takagi
-Tokuko_Takagi, gender: female
-Tokuko_Takagi, deathDate: 1919-01-01
-Tokuko_Takagi, type: Person
+Example of querying data on one person: Tokuko Takagi<br>
+Tokuko_Takagi, birthPlace: Tokyo<br>
+Tokuko_Takagi, description: Japanese actor and dancer<br>
+Tokuko_Takagi, birthDate: 1891-01-01<br>
+Tokuko_Takagi, name: Tokuko Takagi<br>
+Tokuko_Takagi, gender: female<br>
+Tokuko_Takagi, deathDate: 1919-01-01<br>
+Tokuko_Takagi, type: Person<br>
 
-Most common given name in DBpedia:
-JOHN
+Most common given name in DBpedia:<br>
+JOHN<br>
 
-Earliest birth date in DBpedia belongs to:
-Koelbjerg_Woman at -7999-1-1 (Y/M/D)
+Earliest birth date in DBpedia belongs to:<br>
+Koelbjerg_Woman at -7999-1-1 (Y/M/D)<br>
 
-Most common words used to describe people in DBpedia:
-AMERICAN: 278219
-POLITICIAN: 136467
-PLAYER: 136414
-AND: 135920
-FOOTBALLER: 122983
+Most common words used to describe people in DBpedia:<br>
+AMERICAN: 278219<br>
+POLITICIAN: 136467<br>
+PLAYER: 136414<br>
+AND: 135920<br>
+FOOTBALLER: 122983<br>
 
 ### Prerequisites
 
@@ -64,6 +64,8 @@ In lieu of detailed statistics, there are a few obvious performance issues:
 3. Extracting basic statistics requires some additional parsing due to [1] if the column must be converted into an equivalent Python type (typically struct_time). 
 
 4. Inserting new SPO tuples will also be slow due to the need to update the indices on the tables. May be avoidable by batching updates.
+
+5. A docker instance would be a better way to distribute this repository to avoid the need to modify any local postgres installation.
 
 If these issues are solved, I surmise scaling would involve using a distribute key-value store to fragement the database and its indices into something that can be held entirely in memory, then collating results (i.e. map/reduce).
 
