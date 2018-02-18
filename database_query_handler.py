@@ -10,13 +10,17 @@ class DBHandler:
     
     """
 
-    def __init__(self, postgres_username=None, postgres_password=None):
+    def __init__(self,
+                 postgres_username=None,
+                 postgres_password=None,
+                 db_username='dbpedia_app',
+                 db_password='dummy_password'):
 
         # ordinarily you would get these from some secret store
         # e.g. heroku has a specific url that you parse to get both
         # or os.environ storage (like those used for API keys and the like)
-        user_name = 'dbpedia_app'
-        password = 'dummy_password'
+        user_name = db_username
+        password = db_password
 
         # check to see if the db exists locally, create it if necessary
         if postgres_password is not None and postgres_username is not None:

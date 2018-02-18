@@ -6,7 +6,8 @@ from collections import defaultdict
 import time
 
 
-def construct_database(postgres_username, postgres_password):
+def construct_database(postgres_username,
+                       postgres_password):
 
     """
     
@@ -32,6 +33,7 @@ def construct_database(postgres_username, postgres_password):
         print e.message
         print 'This may be caused be insufficient access rights for the ' \
               'local postgres user account used to create the DB, or a missing postgres installation.'
+
 
 def example_queries():
 
@@ -122,14 +124,21 @@ if __name__ == '__main__':
     if len(sys.argv) == 2 and sys.argv[1] == 'example':
         # assume DB has been constructed, run example data analysis
         example_queries()
-    elif len(sys.argv) == 3:
+    elif len(sys.argv) == 2 and sys.argv[1] == 'rebuild':
+        # construct database
+        pg_username = None
+        pg_password = None
+        construct_database(pg_username, pg_password)
+    elif len(sys.argv) == 4 and sys.argv[1] == 'rebuild':
         # construct database
         pg_username = sys.argv[1]
         pg_password = sys.argv[2]
         construct_database(pg_username, pg_password)
     elif len(sys.argv) == 1:
         print "Usage: 'python driver.py example' generates an example of output data"
-        print "'python driver.py USER_NAME PASSWORD' (re)builds a local DBpedia database " \
+        print "'python driver.py rebuild' (re)builds a local DBpedia database " \
+              "using the local postgres install but assumes you have created the database 'dbpedia' already"
+        print "'python driver.py rebuild PG_USER_NAME PG_PASSWORD' (re)builds a local DBpedia database " \
               "using the local postgres install"
         print "'python driver.py' displays this message."
     else:

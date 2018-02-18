@@ -47,7 +47,12 @@ def plain_subject_predicate(line):
         return line.split('/')[-1]
 
 
-def construct_sql_db(schema, schema_path, db_tql_file_path, postgres_username, postgres_password, overwrite_db=False):
+def construct_sql_db(schema,
+                     schema_path,
+                     db_tql_file_path,
+                     postgres_username,
+                     postgres_password,
+                     overwrite_db=False):
 
     """
     
@@ -60,11 +65,14 @@ def construct_sql_db(schema, schema_path, db_tql_file_path, postgres_username, p
     :param db_tql_file_path:
     :param postgres_username:
     :param postgres_password:
+    :param db_username:
+    :param db_password:
     :param overwrite_db:
     :return: 
     """
 
-    db_handler = DBHandler(postgres_username, postgres_password)
+    db_handler = DBHandler(postgres_username,
+                           postgres_password)
 
     if not overwrite_db and db_handler.schema_exists():
         raise AssertionError('Set overwrite_db flag to True to overwrite an existing DB instance.')
