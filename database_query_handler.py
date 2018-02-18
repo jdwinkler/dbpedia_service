@@ -13,13 +13,13 @@ class DBHandler:
     def __init__(self, postgres_username=None, postgres_password=None):
 
         # ordinarily you would get these from some secret store
-        # e.g. heroku as a specific url that you parse to get both
+        # e.g. heroku has a specific url that you parse to get both
         # or os.environ storage (like those used for API keys and the like)
         user_name = 'dbpedia_app'
         password = 'dummy_password'
 
         # check to see if the db exists locally, create it if necessary
-        if postgres_password is not None or postgres_username is not None:
+        if postgres_password is not None and postgres_username is not None:
 
             try:
                 connection = psycopg2.connect("dbname='postgres' user='%s' "
@@ -163,7 +163,7 @@ class DBHandler:
         
         Use_exact_match toggles between two behaviors: if True, then uses the exact identifier provided
         to query against the subject table (WHERE = identifier). If False, uses the LIKE operator
-        to attempt to find similar IDs that are not exactly the same. Results will be still be a superset
+        to attempt to find similar IDs that are not exactly the same. Results will still be a superset
         of the use_exact_match = True case.
         
         :param person_name: 

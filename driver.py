@@ -26,6 +26,8 @@ def construct_database(postgres_username, postgres_password):
         dbpedia_file_parser.driver(path,
                                    postgres_username,
                                    postgres_password)
+
+        print 'Database construction finished successfully!'
     except Exception as e:
         print e.message
         print 'This may be caused be insufficient access rights for the ' \
@@ -131,4 +133,4 @@ if __name__ == '__main__':
               "using the local postgres install"
         print "'python driver.py' displays this message."
     else:
-        print('Unknown number of arguments.')
+        print 'Unknown number of arguments.'
