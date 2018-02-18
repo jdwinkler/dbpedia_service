@@ -10,7 +10,7 @@ class DBHandler:
     
     """
 
-    def __init__(self, postgres_username, postgres_password):
+    def __init__(self, postgres_username=None, postgres_password=None):
 
         # todo pass in DB credentials for local postgres install
 
@@ -21,25 +21,36 @@ class DBHandler:
         password = 'dummy_password'
 
         # check to see if the db exists locally, create it if necessary
-        connection = psycopg2.connect("dbname='postgres' user='%s' "
-                                      "host='localhost' password='%s'"
-                                      % (postgres_username, postgres_password))
-        connection.autocommit = True
-        cursor = connection.cursor()
+        if postgres_password is not None or postgres_username is not None:
 
-        # queries the postgres catalog to see if 'dbpedia' exists
-        # if not, creates it
-        cursor.execute("SELECT COUNT(*) = 0 FROM pg_catalog.pg_database WHERE datname = 'dbpedia'")
-        not_exists_row = cursor.fetchone()
-        not_exists = not_exists_row[0]
-        if not_exists:
-            cursor.execute("CREATE USER %s PASSWORD '%s'" % (user_name, password))
-            cursor.execute('CREATE DATABASE dbpedia OWNER %s' % (user_name,))
+            try:
+                connection = psycopg2.connect("dbname='postgres' user='%s' "
+                                              "host='localhost' password='%s'"
+                                              % (postgres_username, postgres_password))
+                connection.autocommit = True
+                cursor = connection.cursor()
 
-        connection.close()
+                # queries the postgres catalog to see if 'dbpedia' exists
+                # if not, creates it
+                cursor.execute("SELECT COUNT(*) = 0 FROM pg_catalog.pg_database WHERE datname = 'dbpedia'")
+                not_exists_row = cursor.fetchone()
+                not_exists = not_exists_row[0]
+                if not_exists:
+                    cursor.execute("CREATE USER %s PASSWORD '%s'" % (user_name, password))
+                    cursor.execute('CREATE DATABASE dbpedia OWNER %s' % (user_name,))
 
-        self.connection = psycopg2.connect("dbname='dbpedia' user='%s' host='localhost' password='%s'"
-                                      % (user_name, password))
+                connection.close()
+
+            except:
+                # Presume if credentials are passed the user wants to perform this check/DB construction
+                # fail via error propagation
+                raise
+
+        try:
+            self.connection = psycopg2.connect("dbname='dbpedia' user='%s' host='localhost' password='%s'"
+                                          % (user_name, password))
+        except:
+            raise AssertionError('Failed to connect to dbpedia database. Has the local dbpedia been created?')
 
     def __del__(self):
 
