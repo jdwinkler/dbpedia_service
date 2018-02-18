@@ -10,7 +10,7 @@ class DBHandler:
     
     """
 
-    def __init__(self):
+    def __init__(self, postgres_username, postgres_password):
 
         # todo pass in DB credentials for local postgres install
 
@@ -23,7 +23,7 @@ class DBHandler:
         # check to see if the db exists locally, create it if necessary
         connection = psycopg2.connect("dbname='postgres' user='%s' "
                                       "host='localhost' password='%s'"
-                                      % ('postgres', 'password'))
+                                      % (postgres_username, postgres_password))
         connection.autocommit = True
         cursor = connection.cursor()
 
@@ -97,7 +97,15 @@ class DBHandler:
         :return: 
         """
 
-        return None
+        with self.connection.cursor() as cursor:
+
+            cursor.execute('DROP INDEX IF EXISTS dbpedia.pv_subject_id_idx')
+            cursor.execute('DROP INDEX IF EXISTS dbpedia.subject_idx')
+            cursor.execute('DROP INDEX IF EXISTS dbpedia.pv_predicate_idx')
+
+            cursor.execute('create index subject_idx on dbpedia.subjects (name)')
+            cursor.execute('create index pv_subject_id_idx on dbpedia.predicate_object (subject_id)')
+            cursor.execute('create index pv_predicate_idx on dbpedia.predicate_object (predicate);')
 
     def insert_spo_tuple(self, spo_tuple):
 
@@ -192,4 +200,40 @@ class DBHandler:
 
     def get_tuples_by_predicate(self, predicate_of_interest):
 
-        return None
+        """
+        
+        Extracts SPO tuples based on the predicate value passed to the function. This query will be slow since
+        you are querying such a large fraction of the po table at once (unless your predicate does not exist).
+        
+        Predicates:
+        
+        Name
+        Type
+        Gender
+        Description
+        Birthdate
+        GivenName
+        Surname
+        BirthPlace
+        DeathDate
+        DeathPlace
+        
+        :param predicate_of_interest: 
+        :return: 
+        """
+
+        with self.connection.cursor() as cursor:
+
+            cursor.execute('select dbpedia.subjects.name, '
+                           'predicate, '
+                           'object '
+                           'FROM dbpedia.predicate_object '
+                           'INNER JOIN dbpedia.subjects on (dbpedia.subjects.subject_id = dbpedia.predicate_object.subject_id) '
+                           'WHERE upper(dbpedia.predicate_object.predicate) = upper(%s)', (predicate_of_interest,))
+
+            results = cursor.fetchall()
+
+            if results is None:
+                return []
+            else:
+                return results

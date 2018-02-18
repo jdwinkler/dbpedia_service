@@ -47,7 +47,7 @@ def plain_subject_predicate(line):
         return line.split('/')[-1]
 
 
-def construct_sql_db(schema, schema_path, db_tql_file_path, overwrite_db=False):
+def construct_sql_db(schema, schema_path, db_tql_file_path, postgres_username, postgres_password, overwrite_db=False):
 
     """
     
@@ -57,12 +57,14 @@ def construct_sql_db(schema, schema_path, db_tql_file_path, overwrite_db=False):
     This method takes quite a bit of time (~hours) to complete.
     
     :param schema_path:
-    :param db_tql_file_path: 
+    :param db_tql_file_path:
+    :param postgres_username:
+    :param postgres_password:
     :param overwrite_db:
     :return: 
     """
 
-    db_handler = DBHandler()
+    db_handler = DBHandler(postgres_username, postgres_password)
 
     if not overwrite_db and db_handler.schema_exists():
         raise AssertionError('Set overwrite_db flag to True to overwrite an existing DB instance.')
@@ -94,18 +96,23 @@ def construct_sql_db(schema, schema_path, db_tql_file_path, overwrite_db=False):
 
     db_handler.commit()
 
-    return None
 
-if __name__ == '__main__':
+def driver(source_file_path, pg_user, pg_password):
 
-    db_handler = DBHandler()
+    """
+    
+    Automates DB construction. You need to provide credentials for a local install of postgres so the script
+    can build the dbpedia database and initialize the schema.
+    
+    :param source_file_path:
+    :param pg_user:
+    :param pg_password:
+    :return: 
+    """
 
-    # db_handler.build_table_schema('dbpedia', os.path.join(os.getcwd(), 'sql', 'dbpedia_schema.sql'))
-
-    # generator = build_tql_file_generator(os.path.join(os.getcwd(), 'dbpedia', 'persondata_en.tql'))
-
-    results = db_handler.get_person_metadata('Buddy', use_exact_match=False)
-
-    for result in results:
-        print result
-
+    construct_sql_db(schema='dbpedia',
+                     schema_path=os.path.join(source_file_path, 'sql', 'dbpedia_schema.sql'),
+                     db_tql_file_path=os.path.join(source_file_path, 'dbpedia', 'persondata_en.tql'),
+                     overwrite_db=True,
+                     postgres_username=pg_user,
+                     postgres_password=pg_password)
