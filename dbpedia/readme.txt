@@ -1,0 +1,1 @@
+Decompress the persondata_en.tql file from here: http://downloads.dbpedia.org/2016-10/core-i18n/en/persondata_en.tql.bz2 into this folder.
