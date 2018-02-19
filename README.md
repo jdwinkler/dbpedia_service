@@ -67,7 +67,7 @@ In lieu of detailed statistics, there are a few obvious performance issues:
 
 5. A docker instance would be a better way to distribute this repository to avoid the need to modify any local postgres installation.
 
-If these issues are solved, I surmise scaling would involve using a distribute key-value store to fragement the database and its indices into something that can be held entirely in memory, then collating results (i.e. map/reduce).
+If these issues are solved, I surmise scaling would involve using a distribute key-value store to fragment the database and its indices into something that can be held entirely in memory, then collating results (i.e. map/reduce).
 
 ## License
 
