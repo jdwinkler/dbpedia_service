@@ -100,7 +100,7 @@ def construct_sql_db(schema,
 
         counter += 1
 
-    db_handler.build_indices()
+    # db_handler.build_indices()
 
     db_handler.commit()
 
