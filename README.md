@@ -45,6 +45,8 @@ FOOTBALLER: 122983<br>
 
 Postgres (9.5 or higher) must be installed as well on your local machine, and you must have access to a user account with enough access rights to create and delete databases. Alternatively, you can manually create a database name 'dbpedia' (without quotes) with username: dbpedia_app and password: dummy_password .
 
+You will also need to decompress the DBpedia people database (obtainable from: [http://downloads.dbpedia.org/2016-10/core-i18n/en/persondata_en.tql.bz2](here)) into the dbpedia folder within the repository. Git Large File Storage can also be used to store the file potentially, but on free accounts, the size of the uncompressed file is limited to 1 GB compared to the 1.7 GB file. 
+
 ## Running the tests
 
 Here are aspects of the program that should be tested:
