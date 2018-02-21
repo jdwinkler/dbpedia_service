@@ -50,8 +50,10 @@ Postgres (9.5 or higher) must be installed as well on your local machine, and yo
 Here are aspects of the program that should be tested:
 
 1. Integration with postgres and what happens when the local install is missing, inaccessible, or the user passes in credentials that do not have the right to create or drop databases
-2. Various parsing failure modes, such as how are missing data files handled, or malformed SPO tuples included in the database input file.
+2. Various parsing failure modes, such as how are missing data files handled, or malformed SPO tuples included in the database input file. Testing parsing completeness would also be useful to avoid any weird off by one errors, though given the format this seems less likely.
 3. Potential security issues related user input (providing PG user/pass, for example) if directly exposed to unsanitized access
+4. Are dates all parsed correctly? 
+5. Does searching for similar person names give logical results?
 
 ## Performance/Scaling
 
@@ -61,11 +63,11 @@ In lieu of detailed statistics, there are a few obvious performance issues:
 
 2. Parsing the DBpedia input data can be done better, as type information is discarded during the parsing currently. Admittedly types can generally be inferred from the predicate but it would be better to make use of the type information somehow rather than storing everything as text (would also help with [1]). However, postgres is also not meant to store heterogenous types of data in a single column; you can wrap things in a JSON dict but that doesn't really solve the problem of how to store directly usable data in the DB.
 
-3. Extracting basic statistics requires some additional parsing due to [1] if the column must be converted into an equivalent Python type (typically struct_time). 
+3. Extracting basic statistics requires some additional parsing due to [1] if the column must be converted into an equivalent Python type (typically struct_time).
 
-4. Inserting new SPO tuples will also be slow due to the need to update the indices on the tables. May be avoidable by batching updates.
+4. Inserting new SPO tuples will also be slow due to the need to update the indices on the tables. May be avoidable by batching updates. This might also be a symptom of the dataset size as the local machine has 16 GB of ram, and the database appears to be large enough to cause paging when accessed (sometimes).
 
-5. A docker instance would be a better way to distribute this repository to avoid the need to modify any local postgres installation.
+5. A docker instance would be a better way to distribute this repository to avoid the need to modify any local postgres installation, as it stands the installation instructions are inappropriate for beginners and probably insecure.
 
 If these issues are solved, I surmise scaling would involve using a distribute key-value store to fragment the database and its indices into something that can be held entirely in memory, then collating results (i.e. map/reduce).
 
