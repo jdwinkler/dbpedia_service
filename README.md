@@ -11,13 +11,13 @@ RDFlib (4.2.2)
 
 The CLI is as follows:
 
-python driver.py displays help information.<br>
-python driver.py rebuild assumes a database named dbpedia, owned by dbpedia_app with the password 'dummy_password', already exists and then (re)converts the DBpedia dataset into a postgres database<br>
-python driver.py rebuild PG_USERNAME PG_PASSWORD will automatically create the database named dbpedia, owned by dbpedia_app, and then (re)converts the DBpedia dataset into a postgres database
+'python driver.py' displays help information.<br>
+'python driver.py rebuild' assumes a database named dbpedia, owned by dbpedia_app with the password 'dummy_password', already exists and then (re)converts the DBpedia dataset into a postgres database<br>
+'python driver.py rebuild PG_USERNAME PG_PASSWORD' will automatically create the database named dbpedia, owned by dbpedia_app, and then (re)converts the DBpedia dataset into a postgres database
 
 Note that the initial database construction is quite slow, but not very memory intensive; subject-predicate-object tuples are essentially "streamed" individually into the DB to avoid reconstructing the entire DBpedia database into memory at once.
 
-python driver.py example will automatically generate the following example data output:
+'python driver.py' example will automatically generate the following example data output:
 
 Example of querying data on one person: Tokuko Takagi<br>
 Tokuko_Takagi, birthPlace: Tokyo<br>
